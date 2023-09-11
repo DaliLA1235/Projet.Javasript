@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shopping Cart</title>
+    <link rel="stylesheet" type="text/css" href="style5.css">
+    <!--JSPrintManager scripts-->
+    <script type="text/javascript" src="https://jsprintmanager.azurewebsites.net/scripts/JSPrintManager.js"> </script>
+    <script type="text/javascript" src="https://jsprintmanager.azurewebsites.net/scripts/zip.js"> </script>
+    <script type="text/javascript" src="https://jsprintmanager.azurewebsites.net/scripts/zip-ext.js"> </script>
+    <script type="text/javascript" src="https://jsprintmanager.azurewebsites.net/scripts/deflate.js"> </script>
+    <!--end JSPrintManager scripts-->
+    <!--JSPrintManager List Client Printers Sample-->
+    <script type="text/javascript">
+        //WebSocket settings
+        JSPM.JSPrintManager.auto_reconnect = true;
+        JSPM.JSPrintManager.start();
+        JSPM.JSPrintManager.WS.onStatusChanged = function () {
+            if (jspmWSStatus()) {
+                //get client installed printers
+                JSPM.JSPrintManager.getPrinters().then(function (clientPrinters) {
+                    var sel = document.getElementById("installedPrinterName");
+                    for (var i = 0; i < clientPrinters.length; i++) {
+                        var option = document.createElement('option');
+                        option.value = option.text = clientPrinters[i];
+                        sel.add(option);
+                    }
+                });
+            }
+        };
+        //Check JSPM WebSocket status
+        function jspmWSStatus() {
+            if (JSPM.JSPrintManager.websocket_status == JSPM.WSStatus.Open)
+                return true;
+            else if (JSPM.JSPrintManager.websocket_status == JSPM.WSStatus.Closed) {
+                alert('JSPrintManager (JSPM) is not installed or not running! Download JSPM Client App from https://neodynamic.com/downloads/jspm');
+                return false;
+            }
+            else if (JSPM.JSPrintManager.websocket_status == JSPM.WSStatus.Blocked) {
+                alert('JSPM has Blocked this website!');
+                return false;
+            }
+        }
+    </script>
+    <!--end JSPrintManager List Client Printers Sample-->
+    ">
+</head>
+<body>
+    <h1>Shopping Cart</h1>
+    <div id="cart">
+        <!-- Cart items will be added here using JavaScript -->
+    </div>
+    <h2>Total Price: $<span id="total-price">0.00</span></h2>
+
+    <script>
+        // Sample product data with updated image URLs
+        const products = [
+            {
+                id: 1,
+                name: 'Product 1',
+                price: 10.00,
+                quantity: 1,
+                liked: false,
+                image: 'https://img2.freepng.fr/20180804/www/kisspng-cosmetics-skin-care-lotion-cosmeceutical-dr-39-s-secret-official-website-skin-care-bea-5b65adfeee2853.5983915315333903349755.jpg',
+            },
+            {
+                id: 2,
+                name: 'Product 2',
+                price: 20.00,
+                quantity: 2,
+                liked: false,
+                image: 'https://i.pinimg.com/474x/27/b4/46/27b446bc551062d68cb708ff056f8af4.jpg',
+            },
+            {
+                id: 3,
+                name: 'Product 3',
+                price: 15.00,
+                quantity: 1,
+                liked: false,
+                image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQHN7_24ZByyxLgbHgYg54lKuZkVL1IFIDYXA&amp;usqp=CAU',
+            },
+        ];
+
+        const cart = document.getElementById('cart');
+        const totalPriceElement = document.getElementById('total-price');
+
+        function updateCart() {
+            cart.innerHTML = ''; // Clear the cart
+
+            let totalPrice = 0;
+
+            products.forEach(product => {
+                const item = document.createElement('div');
+                item.classList.add('cart-item');
+
+                // Create buttons to adjust quantity
+                const increaseBtn = document.createElement('button');
+                increaseBtn.innerText = '+';
+                increaseBtn.addEventListener('click', () => {
+                    product.quantity++;
+                    updateCart();
+                });
+
+                const decreaseBtn = document.createElement('button');
+                decreaseBtn.innerText = '-';
+                decreaseBtn.addEventListener('click', () => {
+                    if (product.quantity > 1) {
+                        product.quantity--;
+                        updateCart();
+                    }
+                });
+
+                // Create button to delete item
+                const deleteBtn = document.createElement('button');
+                deleteBtn.innerText = 'Delete';
+                deleteBtn.addEventListener('click', () => {
+                    const index = products.indexOf(product);
+                    if (index > -1) {
+                        products.splice(index, 1);
+                        updateCart();
+                    }
+                });
+
+                // Create heart button to like/unlike item
+                const heartBtn = document.createElement('span');
+                heartBtn.classList.add('heart');
+                heartBtn.innerHTML = product.liked ? '❤️' : '🤍';
+                heartBtn.addEventListener('click', () => {
+                    product.liked = !product.liked;
+                    updateCart();
+                });
+
+                // Create product image element with specified width and height
+                const image = document.createElement('img');
+                image.src = product.image;
+                image.alt = product.name;
+                image.width = 100; // Set width as desired
+                image.height = 100; // Set height as desired
+
+                // Display product information
+                item.appendChild(image);
+                item.innerHTML += `
+                    <span>${product.name}</span>
+                    <span>Quantity: ${product.quantity}</span>
+                    <span>Price: $${(product.price * product.quantity).toFixed(2)}</span>
+                `;
+
+                // Append buttons and item to cart
+                item.appendChild(increaseBtn);
+                item.appendChild(decreaseBtn);
+                item.appendChild(deleteBtn);
+                item.appendChild(heartBtn);
+                cart.appendChild(item);
+
+                // Calculate total price
+                totalPrice += product.price * product.quantity;
+            });
+
+            // Update the total price
+            totalPriceElement.textContent = totalPrice.toFixed(2);
+        }
+
+        // Initialize the cart
+        updateCart();
+    </script>
+</body>
+</html>
